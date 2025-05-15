@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: pg_container
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: appdb
+    volumes:
+      - ./backend/postgres:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    restart: always
+    ports:
+      - "5051:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    depends_on:
+      - postgres
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./proxy/nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - pgadmin
+    networks:
+      - internal
+
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - internal
+
+volumes:
+  portainer_data:
+
+networks:
+  internal:
+    name: infra_stack_internal
+    driver: bridge

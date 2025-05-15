@@ -1,0 +1,6 @@
+# Datos de Postgres y pgAdmin
+backend/postgres/
+admin/pgadmin/
+# Ignora ficheros de log y overrides
+*.log
+docker-compose.override.yml
